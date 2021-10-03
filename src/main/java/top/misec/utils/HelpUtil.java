@@ -1,23 +1,25 @@
 package top.misec.utils;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.TimeZone;
 
 /**
+ * av bv utils.
+ *
  * @author Junzhou Liu
- * @create 2020/10/11 20:49
+ * @since 2020/10/11 20:49
  */
 public class HelpUtil {
     private static final String TABLE = "fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF";
     private static final HashMap<String, Integer> MP = new HashMap<>();
     private static final HashMap<Integer, String> MP2 = new HashMap<>();
-    static int[] ss = {11, 10, 3, 8, 4, 6, 2, 9, 5, 7};
-    static long xor = 177451812;
-    static long add = 8728348608L;
-
-    public static void main(String[] args) {
-
-    }
+    private static int[] ss = {11, 10, 3, 8, 4, 6, 2, 9, 5, 7};
+    private static long xor = 177451812;
+    private static long add = 8728348608L;
 
     public static long power(int a, int b) {
         long power = 1;
@@ -56,9 +58,28 @@ public class HelpUtil {
     }
 
     public static String userNameEncode(String userName) {
-        int s1 = userName.length() / 2, s2 = (s1 + 1) / 2;
-        return userName.substring(0, s2) + String.join("", Collections.nCopies(s1, "*")) +
-                userName.substring(s1 + s2);
+        int s1 = userName.length() / 2;
+        int s2 = (s1 + 1) / 2;
+        return userName.substring(0, s2)
+                + String.join("", Collections.nCopies(s1, "*"))
+                + userName.substring(s1 + s2);
     }
+    
+    public static String utcTime(String utcTime){
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        //设置时区UTC
+        df.setTimeZone(TimeZone.getTimeZone("UTC"));
+        //格式化，转当地时区时间
+        Date after = null;
+        try {
+            after = df.parse(utcTime);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        df.applyPattern("yyyy-MM-dd HH:mm:ss");
+        //默认时区
+        df.setTimeZone(TimeZone.getDefault());
+        return df.format(after);
 
+    }
 }

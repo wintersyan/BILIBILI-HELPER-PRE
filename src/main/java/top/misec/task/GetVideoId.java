@@ -4,21 +4,20 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.Data;
-import lombok.extern.log4j.Log4j2;
-import top.misec.apiquery.ApiList;
-import top.misec.login.Verify;
-import top.misec.utils.HttpUtil;
+import top.misec.api.ApiList;
+import top.misec.config.ConfigLoader;
+import top.misec.utils.HttpUtils;
 
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.ArrayBlockingQueue;
 
 /**
+ * GetVideoId .
+ *
  * @author @JunzhouLiu
- * @created 2020/11/12 13:17
+ * @since 2020/11/12 13:17
  */
-
-@Log4j2
 @Data
 public class GetVideoId {
     private ArrayList<String> followUpVideoList;
@@ -45,7 +44,7 @@ public class GetVideoId {
     }
 
     /**
-     * 从动态中获取随机bv号
+     * 从动态中获取随机bv号.
      */
     public String getFollowUpRandomVideoBvid() {
         if (followUpVideoList.size() == 0) {
@@ -56,7 +55,7 @@ public class GetVideoId {
     }
 
     /**
-     * 暂未启用的方法
+     * 暂未启用的方法.
      *
      * @return 从阻塞队列中获取bv号
      */
@@ -66,7 +65,7 @@ public class GetVideoId {
     }
 
     /**
-     * 排行榜获取随机bv号
+     * 排行榜获取随机bv号.
      */
     public String getRegionRankingVideoBvid() {
         Random random = new Random();
@@ -75,11 +74,11 @@ public class GetVideoId {
 
     public ArrayList<String> queryDynamicNew() {
         ArrayList<String> arrayList = new ArrayList<>();
-        String urlParameter = "?uid=" + Verify.getInstance().getUserId()
+        String urlParameter = "?uid=" + ConfigLoader.helperConfig.getBiliVerify().getDedeUserId()
                 + "&type_list=8"
                 + "&from="
                 + "&platform=web";
-        JsonObject jsonObject = HttpUtil.doGet(ApiList.queryDynamicNew + urlParameter);
+        JsonObject jsonObject = HttpUtils.doGet(ApiList.QUERY_DYNAMIC_NEW + urlParameter);
         JsonArray jsonArray = jsonObject.getAsJsonObject("data").getAsJsonArray("cards");
 
         if (jsonArray != null) {
@@ -92,8 +91,7 @@ public class GetVideoId {
     }
 
     /**
-     * 从有限分区中随机返回一个分区rid
-     * 后续会更新请求分区
+     * 从有限分区中随机返回一个分区rid.
      *
      * @return regionId 分区id
      */
@@ -103,7 +101,7 @@ public class GetVideoId {
     }
 
     /**
-     * 默认请求动画区，3日榜单
+     * 默认请求动画区，3日榜单.
      */
     public ArrayList<String> regionRanking() {
         int rid = randomRegion();
@@ -112,6 +110,8 @@ public class GetVideoId {
     }
 
     /**
+     * 请求分区.
+     *
      * @param rid 分区id 默认为3
      * @param day 日榜，三日榜 周榜 1，3，7
      * @return 随机返回一个aid
@@ -120,7 +120,7 @@ public class GetVideoId {
 
         ArrayList<String> videoList = new ArrayList<>();
         String urlParam = "?rid=" + rid + "&day=" + day;
-        JsonObject resultJson = HttpUtil.doGet(ApiList.getRegionRanking + urlParam);
+        JsonObject resultJson = HttpUtils.doGet(ApiList.GET_REGION_RANKING + urlParam);
 
         JsonArray jsonArray = resultJson.getAsJsonArray("data");
 
@@ -132,16 +132,17 @@ public class GetVideoId {
         }
         return videoList;
     }
-    public void videoUpdate(String mid){
+
+    public void videoUpdate(String mid) {
         String urlParam = "?mid=" + mid + "&ps=30&tid=0&pn=1&keyword=&order=pubdate&jsonp=jsonp";
-        JsonObject resultJson = HttpUtil.doGet(ApiList.getBvidByCreate + urlParam);
-        JsonArray jsonArray=resultJson.getAsJsonObject("data").getAsJsonObject("list").getAsJsonArray("vlist");
+        JsonObject resultJson = HttpUtils.doGet(ApiList.GET_BVID_BY_CREATE + urlParam);
+        JsonArray jsonArray = resultJson.getAsJsonObject("data").getAsJsonObject("list").getAsJsonArray("vlist");
 
         if (jsonArray != null) {
             for (JsonElement videoInfo : jsonArray) {
-                String bvid=videoInfo.getAsJsonObject().get("bvid").getAsString();
-                int play=videoInfo.getAsJsonObject().get("play").getAsInt();
-                if(!CoinAdd.isCoinAdded(bvid)){
+                String bvid = videoInfo.getAsJsonObject().get("bvid").getAsString();
+                // int play = videoInfo.getAsJsonObject().get("play").getAsInt();
+                if (CoinAdd.isCoinAdded(bvid)) {
                     this.rankVideoList.add(bvid);
                     this.followUpVideoList.add(bvid);
                 }

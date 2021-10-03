@@ -1,50 +1,33 @@
 package top.misec.task;
 
-import lombok.extern.log4j.Log4j2;
-import org.junit.Test;
-import top.misec.config.Config;
-import top.misec.login.ServerVerify;
-import top.misec.login.Verify;
+import java.io.File;
+
+import lombok.extern.slf4j.Slf4j;
+import top.misec.config.ConfigLoader;
 import top.misec.utils.VersionInfo;
 
 /**
+ * util test.
+ *
  * @author Junzhou Liu
  * @create 2021/1/15 23:16
  */
-@Log4j2
+@Slf4j
 public class UnitTest {
-    @Test
-    public void main(String[] args) {
-        if (args.length < 3) {
-            log.info("任务启动失败");
-            log.warn("Cookies参数缺失，请检查是否在Github Secrets中配置Cookies参数");
-        }
-        //读取环境变量
-        Verify.verifyInit(args[0], args[1], args[2]);
 
-        if (args.length > 4) {
-            ServerVerify.verifyInit(args[3], args[4]);
-        } else if (args.length > 3) {
-            ServerVerify.verifyInit(args[3]);
-        }
-
+    public static void main(String[] args) {
         VersionInfo.printVersionInfo();
-        //每日任务65经验
 
-        //初始化配置
-        Config.getInstance().configInit();
+        if (args.length > 0) {
+            log.info("使用自定义目录的配置文件");
+            ConfigLoader.configInit(args[0]);
+        } else {
+            log.info("使用同目录下的config.json文件");
+            String currentPath = System.getProperty("user.dir") + File.separator + "config.json";
+            ConfigLoader.configInit(currentPath);
+        }
 
-        new UserCheck().run();
-        ServerPush.doServerPush();
-        //new CoinAdd().run();
-
-//        GetVideoId getVideoId=new GetVideoId();
-//        getVideoId.videoUpdate("14602398");
-//        System.out.println(getVideoId.getFollowUpVideoList());
-//        System.out.println(getVideoId.getRankVideoList());
-
-        GetVipPrivilege getVipPrivilege = new GetVipPrivilege();
-        getVipPrivilege.run();
-
+    //    new MatchGame().run();
+        //ServerPush.doServerPush();
     }
 }
